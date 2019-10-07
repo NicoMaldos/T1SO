@@ -8,7 +8,8 @@ int main(){
 
     
     startGame();
-    turno("jugador1");
+    turno("jugador 1");
+
 
     return 0;
 }
