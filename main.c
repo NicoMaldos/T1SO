@@ -10,5 +10,6 @@ int main(){
     startGame();
     turno("jugador 1");
 
+
     return 0;
 }

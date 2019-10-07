@@ -6,6 +6,7 @@
 
 static int cantmazo = 108;
 
+
 //funcion que crea todas las cartas y las guarda en la carpeta mazo.
 void createCards(){
 	FILE *fp;
@@ -61,6 +62,7 @@ void createCards(){
 	fp = fopen ( "mazo/+2 amarillo_1.txt", "a" );        
 	fclose ( fp );
 	fp = fopen ( "mazo/reversa amarillo.txt", "a" );        
+
 	fclose ( fp );
 	fp = fopen ( "mazo/reversa amarillo_1.txt", "a" );        
 	fclose ( fp );
@@ -81,6 +83,7 @@ void createCards(){
 	fclose ( fp );
 	fp = fopen ( "mazo/salto azul_1.txt", "a" );        
 	fclose ( fp );
+
 
 	fp = fopen ( "mazo/+2 rojo.txt", "a" );        
 	fclose ( fp );
@@ -108,12 +111,14 @@ void createCards(){
 	fp = fopen ( "mazo/salto verde_1.txt", "a" );        
 	fclose ( fp );
 
+
 	fp = fopen ( "mazo/cambio color_1.txt", "a" );        
 	fclose ( fp );
 	fp = fopen ( "mazo/cambio color_2.txt", "a" );        
 	fclose ( fp );
 	fp = fopen ( "mazo/cambio color_3.txt", "a" );        
 	fclose ( fp );
+
 	fp = fopen ( "mazo/cambio color_4.txt", "a" );        
 	fclose ( fp );
 
@@ -479,3 +484,4 @@ void turno(char *folder){
 		}
 	}
 }
+
