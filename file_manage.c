@@ -3,6 +3,7 @@
 #include<string.h>
 #include<dirent.h>
 #include"file_manage.h"
+#include<time.h>
 
 static int cantmazo = 108;
 
@@ -159,6 +160,7 @@ void getCard(char *player){
 	struct dirent *sd;
 	int i=0;
 	char *cart, mano[108][50];
+	srand(time(0)); 
 	int random = rand() % (cantmazo);
 
 	if ((dir = opendir("mazo")) == NULL){
