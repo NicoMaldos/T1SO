@@ -4,10 +4,11 @@
 #include<dirent.h>
 #include"file_manage.h"
 
-
 int main(){
+
     
     startGame();
+    turno("jugador 1");
 
     return 0;
 }

@@ -250,7 +250,8 @@ void turno(char *folder){
 		}
 		closedir(dir);
 
-		char *numdes = "", *numjug = "", colordes[9] = "", colorjug[9] = "", aux[50] = "", aux2[50] = "", aux3[50] = "";
+		char *numdes = "", *numjug = "", *colordes, *colorjug, aux[50] = "", aux2[50] = "", aux3[50] = "";
+
 
 		printf("*** Indique el numero de la opción a realizar: ***\n");
 		scanf("%s", optstr);
@@ -268,7 +269,7 @@ void turno(char *folder){
 			cont = 0;
 		}
 		else{
-			cont2 = cont;
+			cont2 = cont - 1;
 			cont = 0;
 			strcpy(aux, cartdes);
 			strcpy(aux2, cartdes);
@@ -276,27 +277,9 @@ void turno(char *folder){
 			strtok(aux, "_");
 			numdes = strtok(aux2, " ");
 
-			if (strlen(numdes) == 1){
-				for (i = 2; i < strlen(aux); i++){
-					colordes[i-2] = aux[i];
-				}
-			}
-			else if (strlen(numdes) == 2){
-				for (i = 3; i < strlen(aux); i++){
-					colordes[i-3] = aux[i];
-				}
-			}
-			else if(strlen(numdes) == 5){
-				for (i = 6; i < strlen(aux); i++){
-					colordes[i-6] = aux[i];
-				}
-			}
-			else if(strlen(numdes) == 7){
-				for (i = 8; i < strlen(aux); i++){
-					colordes[i-8] = aux[i];
-				}
-			}
-
+			colordes = strtok(aux, " ");   
+			colordes = strtok(NULL, " ");
+ 
 			strcpy(cartjug, mano[optint-1]);
 			strcpy(aux3, mano[optint-1]);
 			strtok(cartjug, ".");
@@ -305,26 +288,9 @@ void turno(char *folder){
 			numjug = strtok(aux3, " ");
 			numjug = strtok(numjug, "_");
 
-			if (strlen(numjug) == 1){
-				for (i = 2; i < strlen(cartjug); i++){
-					colorjug[i-2] = cartjug[i];
-				}
-			}
-			else if (strlen(numjug) == 2 && strcmp(numjug, "+4") != 0){
-				for (i = 3; i < strlen(cartjug); i++){
-					colorjug[i-3] = cartjug[i];
-				}
-			}
-			else if(strlen(numjug) == 5){
-				for (i = 6; i < strlen(cartjug); i++){
-					colorjug[i-6] = cartjug[i];
-				}
-			}
-			else if(strlen(numjug) == 7){
-				for (i = 8; i < strlen(cartjug); i++){
-					colorjug[i-8] = cartjug[i];
-				}
-			}
+			colorjug = strtok(cartjug, " ");
+			colorjug = strtok(NULL, " ");
+			
 			
 			if (strcmp(numjug, "cambio") == 0){
 				printf("¿A que color deseas cambiar?\n");
@@ -452,14 +418,14 @@ void turno(char *folder){
 	}
 
 	if(cont2 == 0){
-		printf("Ganaste, juego terminado");
+		printf("Ganaste, juego terminado\n");
 	}
 	else if(cantmazo == 0){
-		printf("No quedan cartas en el mazo, nadie gana.");
+		printf("No quedan cartas en el mazo, nadie gana.\n");
 	}
 	else{
 		if(cont2 == 1){
-			printf("UNO!");
+			printf("!UNO! ¡Atencion! !!!!Un jugador tiene solo una carta en la mano!!!!\n");
 		}
 
 		if(strcmp(folder, "jugador 1") == 0){
