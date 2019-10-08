@@ -3,9 +3,10 @@
 #include<string.h>
 #include<dirent.h>
 #include"file_manage.h"
+#include<time.h>
 
 static int cantmazo = 108;
-
+static int rev = 1;
 
 //funcion que crea todas las cartas y las guarda en la carpeta mazo.
 void createCards(){
@@ -62,7 +63,6 @@ void createCards(){
 	fp = fopen ( "mazo/+2 amarillo_1.txt", "a" );        
 	fclose ( fp );
 	fp = fopen ( "mazo/reversa amarillo.txt", "a" );        
-
 	fclose ( fp );
 	fp = fopen ( "mazo/reversa amarillo_1.txt", "a" );        
 	fclose ( fp );
@@ -83,7 +83,6 @@ void createCards(){
 	fclose ( fp );
 	fp = fopen ( "mazo/salto azul_1.txt", "a" );        
 	fclose ( fp );
-
 
 	fp = fopen ( "mazo/+2 rojo.txt", "a" );        
 	fclose ( fp );
@@ -111,14 +110,12 @@ void createCards(){
 	fp = fopen ( "mazo/salto verde_1.txt", "a" );        
 	fclose ( fp );
 
-
 	fp = fopen ( "mazo/cambio color_1.txt", "a" );        
 	fclose ( fp );
 	fp = fopen ( "mazo/cambio color_2.txt", "a" );        
 	fclose ( fp );
 	fp = fopen ( "mazo/cambio color_3.txt", "a" );        
 	fclose ( fp );
-
 	fp = fopen ( "mazo/cambio color_4.txt", "a" );        
 	fclose ( fp );
 
@@ -159,6 +156,7 @@ void getCard(char *player){
 	struct dirent *sd;
 	int i=0;
 	char *cart, mano[108][50];
+	srand(time(0)); 
 	int random = rand() % (cantmazo);
 
 	if ((dir = opendir("mazo")) == NULL){
@@ -432,26 +430,49 @@ void turno(char *folder){
 		if(cont2 == 1){
 			printf("!UNO! ¡Atencion! !!!!Un jugador tiene solo una carta en la mano!!!!\n");
 		}
-
-		if(strcmp(folder, "jugador 1") == 0){
-			ant = "jugador 4";
-			sig = "jugador 2";
-			subsig = "jugador 3";
+		if(rev == 1){
+			if(strcmp(folder, "jugador 1") == 0){
+				ant = "jugador 4";
+				sig = "jugador 2";
+				subsig = "jugador 3";
+			}
+			else if(strcmp(folder, "jugador 2") == 0){
+				ant = "jugador 1";
+				sig = "jugador 3";
+				subsig = "jugador 4";
+			}
+			else if(strcmp(folder, "jugador 3") == 0){
+				ant = "jugador 2";
+				sig = "jugador 4";
+				subsig = "jugador 1";
+			}
+			else{
+				ant = "jugador 3";
+				sig = "jugador 1";
+				subsig = "jugador 2";
+			}
 		}
-		else if(strcmp(folder, "jugador 2") == 0){
-			ant = "jugador 1";
-			sig = "jugador 3";
-			subsig = "jugador 4";
-		}
-		else if(strcmp(folder, "jugador 3") == 0){
-			ant = "jugador 2";
-			sig = "jugador 4";
-			subsig = "jugador 1";
-		}
-		else{
-			ant = "jugador 3";
-			sig = "jugador 1";
-			subsig = "jugador 2";
+		else if(rev == -1){
+			if(strcmp(folder, "jugador 1") == 0){
+				ant = "jugador 2";
+				sig = "jugador 4";
+				subsig = "jugador 3";
+			}
+			else if(strcmp(folder, "jugador 2") == 0){
+				ant = "jugador 3";
+				sig = "jugador 1";
+				subsig = "jugador 4";
+			}
+			else if(strcmp(folder, "jugador 3") == 0){
+				ant = "jugador 4";
+				sig = "jugador 2";
+				subsig = "jugador 1";
+			}
+			else{
+				ant = "jugador 1";
+				sig = "jugador 3";
+				subsig = "jugador 2";
+			}
 		}
 		
 		strtok(cartjug, " ");
@@ -474,6 +495,7 @@ void turno(char *folder){
 			turno(subsig);
 		}
 		else if(strcmp(cartjug, "reversa") == 0){
+			rev = rev * -1;
 			turno(ant);
 		}
 		else if(strcmp(cartjug, "cambio") == 0){
@@ -485,3 +507,149 @@ void turno(char *folder){
 	}
 }
 
+void turno1(){
+	DIR *dir;
+	struct dirent *sd; 
+	char  *descarte = "", optstr[2] = "", cartdes[50] = "", aux[50] = "";
+	int i, optint = 0;
+	if ((dir = opendir("ult_descarte")) == NULL){
+			perror ("opendir() error.");
+		}
+		else {
+			while((sd = readdir(dir)) != NULL){
+				if ( !strcmp(sd->d_name, ".") || !strcmp(sd->d_name, "..") ){
+				}
+				else{
+					descarte = sd->d_name;
+					if( strlen(descarte)>5){
+						strcpy(cartdes, descarte);
+						descarte = strtok(sd->d_name, ".");
+						descarte = strtok(descarte, "_");
+						descarte = strtok(descarte, " ");
+					}
+				}
+			}
+		}
+		closedir(dir);
+		if(strcmp(descarte, "+2") == 0){
+			printf("El jugador 1 debe sacar 2 cartas! ¡Pierde turno!\n");
+			for(i=0; i<2; i++){
+				getCard("jugador 1");
+			}
+			turno("jugador 2");
+		}
+		else if(strcmp(descarte, "+4") == 0){
+			printf("El jugador 1 debe sacar 4 cartas! ¡Pierde turno!\n");
+			for(i=0; i<4; i++){
+				getCard("jugador 1");
+			}
+			printf("¿A que color deseas cambiar?\n");
+				printf("1) Azul.\n");
+				printf("2) Amarillo.\n");
+				printf("3) Verde.\n");
+				printf("4) Rojo.\n");
+				scanf("%s", optstr);
+				optint = atoi(optstr);
+
+				while(optint < 0 || optint > 4){
+					printf("Opcion incorrecta\n");
+					printf("Indique el numero del color a cambiar:\n");
+					scanf("%s", optstr);
+					optint = atoi(optstr);
+				}
+				if (optint == 1){
+					strcpy(aux, "ult_descarte/");
+					strcat(aux, cartdes);
+					remove(aux);
+					FILE *fp;
+					fp = fopen("ult_descarte/+ azul.txt", "a");
+					fclose(fp);
+				}
+				else if (optint == 2){
+					strcpy(aux, "ult_descarte/");
+					strcat(aux, cartdes);
+					remove(aux);
+					FILE *fp;
+					fp = fopen("ult_descarte/+ amarillo.txt", "a");
+					fclose(fp);
+				}
+				else if (optint == 3){
+					strcpy(aux, "ult_descarte/");
+					strcat(aux, cartdes);
+					remove(aux);
+					FILE *fp;
+					fp = fopen("ult_descarte/+ verde.txt", "a");
+					fclose(fp);
+				}
+				else if (optint == 4){
+					strcpy(aux, "ult_descarte/");
+					strcat(aux, cartdes);
+					remove(aux);
+					FILE *fp;
+					fp = fopen("ult_descarte/+ rojo.txt", "a");
+					fclose(fp);
+				}
+
+			turno("jugador 2");
+		}
+		else if(strcmp(descarte, "salto") == 0){
+			turno("jugador 2");
+		}
+		else if(strcmp(descarte, "reversa") == 0){
+			rev = rev * -1;
+			turno("jugador 1");
+		}
+		else if(strcmp(descarte, "cambio") == 0){
+			printf("¿A que color deseas cambiar?\n");
+			printf("1) Azul.\n");
+			printf("2) Amarillo.\n");
+			printf("3) Verde.\n");
+			printf("4) Rojo.\n");
+			scanf("%s", optstr);
+			optint = atoi(optstr);
+
+			while(optint < 0 || optint > 4){
+				printf("Opcion incorrecta\n");
+				printf("Indique el numero del color a cambiar:\n");
+				scanf("%s", optstr);
+				optint = atoi(optstr);
+			}
+			if (optint == 1){
+				strcpy(aux, "ult_descarte/");
+				strcat(aux, cartdes);
+				remove(aux);
+				FILE *fp;
+				fp = fopen("ult_descarte/c azul.txt", "a");
+				fclose(fp);
+			}
+			else if (optint == 2){
+				strcpy(aux, "ult_descarte/");
+				strcat(aux, cartdes);
+				remove(aux);
+				FILE *fp;
+				fp = fopen("ult_descarte/c amarillo.txt", "a");
+				fclose(fp);
+			}
+			else if (optint == 3){
+				strcpy(aux, "ult_descarte/");
+				strcat(aux, cartdes);
+				remove(aux);
+				FILE *fp;
+				fp = fopen("ult_descarte/c verde.txt", "a");
+				fclose(fp);
+			}
+			else if (optint == 4){
+				strcpy(aux, "ult_descarte/");
+				strcat(aux, cartdes);
+				remove(aux);
+				FILE *fp;
+				fp = fopen("ult_descarte/c rojo.txt", "a");
+				fclose(fp);
+			}
+			turno("jugador 1");
+		}
+		else{
+			turno("jugador 1");
+		}
+
+}

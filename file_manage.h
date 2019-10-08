@@ -8,3 +8,4 @@ void getCard(char *player);
 
 void startGame();
 
+void turno1();
