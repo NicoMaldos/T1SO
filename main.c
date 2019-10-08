@@ -5,11 +5,9 @@
 #include"file_manage.h"
 
 int main(){
-
     
     startGame();
-    turno("jugador 1");
-
+    turno1();
 
     return 0;
 }
