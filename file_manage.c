@@ -4,6 +4,8 @@
 #include<dirent.h>
 #include"file_manage.h"
 #include<time.h>
+#include<sys/wait.h>
+#include<unistd.h>
 
 static int cantmazo = 108;
 static int rev = 1;
@@ -259,6 +261,7 @@ void turno(char *folder){
 		printf("*** Indique el numero de la opción a realizar: ***\n");
 		scanf("%s", optstr);
 		optint = atoi(optstr);
+
 		while(optint < 0 || optint > cont){
 			printf("Opcion incorrecta\n");
 			printf("Indique el numero de la opción a realizar: \n");
@@ -293,8 +296,7 @@ void turno(char *folder){
 
 			colorjug = strtok(cartjug, " ");
 			colorjug = strtok(NULL, " ");
-			
-			
+
 			if (strcmp(numjug, "cambio") == 0){
 				printf("¿A que color deseas cambiar?\n");
 				printf("1) Azul.\n");
@@ -309,43 +311,29 @@ void turno(char *folder){
 					scanf("%s", optstr2);
 					optint2 = atoi(optstr2);
 				}
+				strcpy(aux, "ult_descarte/");
+				strcat(aux, cartdes);
+				remove(aux);
+				FILE *fp;
+
 				if (optint2 == 1){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/x azul.txt", "a");
-					fclose(fp);
 				}
 				if (optint2 == 2){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/x amarillo.txt", "a");
-					fclose(fp);
 				}
 				if (optint2 == 3){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/x verde.txt", "a");
-					fclose(fp);
 				}
 				if (optint2 == 4){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/x rojo.txt", "a");
-					fclose(fp);
 				}
+				fclose(fp);
+
 				strcpy(aux, folder);
 				strcat(aux, "/");
 				strcat(aux, mano[optint-1]);
 				remove(aux);
-
 				seguir = 1;	
 				cont2 -= 1;
 			}
@@ -364,43 +352,29 @@ void turno(char *folder){
 					scanf("%s", optstr2);
 					optint2 = atoi(optstr2);
 				}
+				strcpy(aux, "ult_descarte/");
+				strcat(aux, cartdes);
+				remove(aux);
+				FILE *fp;
+
 				if (optint2 == 1){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/+ azul.txt", "a");
-					fclose(fp);
 				}
 				else if (optint2 == 2){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/+ amarillo.txt", "a");
-					fclose(fp);
 				}
 				else if (optint2 == 3){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/+ verde.txt", "a");
-					fclose(fp);
 				}
 				else if (optint2 == 4){
-					strcpy(aux, "ult_descarte/");
-					strcat(aux, cartdes);
-					remove(aux);
-					FILE *fp;
 					fp = fopen("ult_descarte/+ rojo.txt", "a");
-					fclose(fp);
 				}
+				fclose(fp);
+
 				strcpy(aux, folder);
 				strcat(aux, "/");
 				strcat(aux, mano[optint-1]);
 				remove(aux);
-
 				seguir = 1;	
 				cont2 -= 1;
 			}
@@ -416,7 +390,6 @@ void turno(char *folder){
 				printf("No puedes jugar esta carta. Fijate en el numero y color de la carta en juego!\n");
 				seguir = 0;
 			}
-			
 		}
 	}
 
@@ -507,43 +480,128 @@ void turno(char *folder){
 	}
 }
 
+//Esta funcion verifica si la primera carta en juego es una carta especial (salto, reversa, +2, +4 o cambio color)
 void turno1(){
 	DIR *dir;
 	struct dirent *sd; 
-	char  *descarte = "", optstr[2] = "", cartdes[50] = "", aux[50] = "";
-	int i, optint = 0;
-	if ((dir = opendir("ult_descarte")) == NULL){
-			perror ("opendir() error.");
-		}
-		else {
-			while((sd = readdir(dir)) != NULL){
-				if ( !strcmp(sd->d_name, ".") || !strcmp(sd->d_name, "..") ){
-				}
-				else{
-					descarte = sd->d_name;
-					if( strlen(descarte)>5){
-						strcpy(cartdes, descarte);
-						descarte = strtok(sd->d_name, ".");
-						descarte = strtok(descarte, "_");
-						descarte = strtok(descarte, " ");
+	char  *descarte = "", optstr[2] = "", cartdes[50] = "", aux[50] = "", mensaje[100];
+	int i, optint = 0, fd1[2], fd2[2], fd3[2], fd4[2];
+	pid_t p1 = 0, p2 = 0, p3 = 0;
+
+    p1 = fork();
+    if(p1 > 0){
+        p2 = fork();
+        if(p2 > 0){
+            p3 = fork();
+        }
+    }
+
+	if(p1 == 0){
+		read(fd2[0], mensaje, 100);
+		wait(NULL);
+		turno("jugador 2");
+	}
+	else if(p2 == 0){
+		read(fd3[0], mensaje, 100);
+		wait(NULL);
+		turno("jugador 3");
+	}
+	else if(p3 == 0){
+		read(fd4[0], mensaje, 100);
+		wait(NULL);
+		turno("jugador 4");
+	}
+	if(p3 > 0){
+
+		if ((dir = opendir("ult_descarte")) == NULL){
+				perror ("opendir() error.");
+			}
+			else {
+				while((sd = readdir(dir)) != NULL){
+					if ( !strcmp(sd->d_name, ".") || !strcmp(sd->d_name, "..") ){
+					}
+					else{
+						descarte = sd->d_name;
+						if( strlen(descarte)>5){
+							strcpy(cartdes, descarte);
+							descarte = strtok(sd->d_name, ".");
+							descarte = strtok(descarte, "_");
+							descarte = strtok(descarte, " ");
+						}
 					}
 				}
 			}
-		}
-		closedir(dir);
-		if(strcmp(descarte, "+2") == 0){
-			printf("El jugador 1 debe sacar 2 cartas! ¡Pierde turno!\n");
-			for(i=0; i<2; i++){
-				getCard("jugador 1");
+			closedir(dir);
+			if(strcmp(descarte, "+2") == 0){
+				printf("El jugador 1 debe sacar 2 cartas! ¡Pierde turno!\n");
+				for(i=0; i<2; i++){
+					getCard("jugador 1");
+				}
+				write(fd2[0], mensaje, strlen(mensaje));
 			}
-			turno("jugador 2");
-		}
-		else if(strcmp(descarte, "+4") == 0){
-			printf("El jugador 1 debe sacar 4 cartas! ¡Pierde turno!\n");
-			for(i=0; i<4; i++){
-				getCard("jugador 1");
+			else if(strcmp(descarte, "+4") == 0){
+				printf("El jugador 1 debe sacar 4 cartas! ¡Pierde turno!\n");
+				for(i=0; i<4; i++){
+					getCard("jugador 1");
+				}
+				printf("¿A que color deseas cambiar?\n");
+					printf("1) Azul.\n");
+					printf("2) Amarillo.\n");
+					printf("3) Verde.\n");
+					printf("4) Rojo.\n");
+					scanf("%s", optstr);
+					optint = atoi(optstr);
+
+					while(optint < 0 || optint > 4){
+						printf("Opcion incorrecta\n");
+						printf("Indique el numero del color a cambiar:\n");
+						scanf("%s", optstr);
+						optint = atoi(optstr);
+					}
+					if (optint == 1){
+						strcpy(aux, "ult_descarte/");
+						strcat(aux, cartdes);
+						remove(aux);
+						FILE *fp;
+						fp = fopen("ult_descarte/+ azul.txt", "a");
+						fclose(fp);
+					}
+					else if (optint == 2){
+						strcpy(aux, "ult_descarte/");
+						strcat(aux, cartdes);
+						remove(aux);
+						FILE *fp;
+						fp = fopen("ult_descarte/+ amarillo.txt", "a");
+						fclose(fp);
+					}
+					else if (optint == 3){
+						strcpy(aux, "ult_descarte/");
+						strcat(aux, cartdes);
+						remove(aux);
+						FILE *fp;
+						fp = fopen("ult_descarte/+ verde.txt", "a");
+						fclose(fp);
+					}
+					else if (optint == 4){
+						strcpy(aux, "ult_descarte/");
+						strcat(aux, cartdes);
+						remove(aux);
+						FILE *fp;
+						fp = fopen("ult_descarte/+ rojo.txt", "a");
+						fclose(fp);
+					}
+
+				write(fd2[0], mensaje, strlen(mensaje));
 			}
-			printf("¿A que color deseas cambiar?\n");
+			else if(strcmp(descarte, "salto") == 0){
+				write(fd2[0], mensaje, strlen(mensaje));
+			}
+			else if(strcmp(descarte, "reversa") == 0){
+				rev = rev * -1;
+				turno("jugador 1");
+			}
+			else if(strcmp(descarte, "cambio") == 0){
+				printf("¿A que color deseas cambiar?\n");
 				printf("1) Azul.\n");
 				printf("2) Amarillo.\n");
 				printf("3) Verde.\n");
@@ -562,7 +620,7 @@ void turno1(){
 					strcat(aux, cartdes);
 					remove(aux);
 					FILE *fp;
-					fp = fopen("ult_descarte/+ azul.txt", "a");
+					fp = fopen("ult_descarte/c azul.txt", "a");
 					fclose(fp);
 				}
 				else if (optint == 2){
@@ -570,7 +628,7 @@ void turno1(){
 					strcat(aux, cartdes);
 					remove(aux);
 					FILE *fp;
-					fp = fopen("ult_descarte/+ amarillo.txt", "a");
+					fp = fopen("ult_descarte/c amarillo.txt", "a");
 					fclose(fp);
 				}
 				else if (optint == 3){
@@ -578,7 +636,7 @@ void turno1(){
 					strcat(aux, cartdes);
 					remove(aux);
 					FILE *fp;
-					fp = fopen("ult_descarte/+ verde.txt", "a");
+					fp = fopen("ult_descarte/c verde.txt", "a");
 					fclose(fp);
 				}
 				else if (optint == 4){
@@ -586,70 +644,44 @@ void turno1(){
 					strcat(aux, cartdes);
 					remove(aux);
 					FILE *fp;
-					fp = fopen("ult_descarte/+ rojo.txt", "a");
+					fp = fopen("ult_descarte/c rojo.txt", "a");
 					fclose(fp);
 				}
+				turno("jugador 1");
+			}
+			else{
+				turno("jugador 1");
+			}
+	}
+}
 
-			turno("jugador 2");
-		}
-		else if(strcmp(descarte, "salto") == 0){
-			turno("jugador 2");
-		}
-		else if(strcmp(descarte, "reversa") == 0){
-			rev = rev * -1;
-			turno("jugador 1");
-		}
-		else if(strcmp(descarte, "cambio") == 0){
-			printf("¿A que color deseas cambiar?\n");
-			printf("1) Azul.\n");
-			printf("2) Amarillo.\n");
-			printf("3) Verde.\n");
-			printf("4) Rojo.\n");
-			scanf("%s", optstr);
-			optint = atoi(optstr);
+//Esta funcion vacia la carpeta "folder".
+void restart(){
+	DIR *dir; 
+	struct dirent *sd;
+	char *carta = "", folder[50] = "", *carpetas[6] = {"mazo", "jugador 1", "jugador 2", "jugador 3", "jugador 4", "ult_descarte"};
+	int i;
 
-			while(optint < 0 || optint > 4){
-				printf("Opcion incorrecta\n");
-				printf("Indique el numero del color a cambiar:\n");
-				scanf("%s", optstr);
-				optint = atoi(optstr);
+	for(i = 0; i < 6; i++){
+		strcpy(folder, carpetas[i]);
+		if ((dir = opendir(folder)) == NULL){
+				perror ("opendir() error.");
 			}
-			if (optint == 1){
-				strcpy(aux, "ult_descarte/");
-				strcat(aux, cartdes);
-				remove(aux);
-				FILE *fp;
-				fp = fopen("ult_descarte/c azul.txt", "a");
-				fclose(fp);
+			else {
+				while((sd = readdir(dir)) != NULL){
+					strcpy(folder, carpetas[i]);
+					if ( !strcmp(sd->d_name, ".") || !strcmp(sd->d_name, "..") ){
+					}
+					else{
+						carta = sd->d_name;
+						if( strlen(carta)>5){
+							strcat(folder, "/");
+							strcat(folder, carta);
+							remove(folder);
+						}
+					}
+				}
 			}
-			else if (optint == 2){
-				strcpy(aux, "ult_descarte/");
-				strcat(aux, cartdes);
-				remove(aux);
-				FILE *fp;
-				fp = fopen("ult_descarte/c amarillo.txt", "a");
-				fclose(fp);
-			}
-			else if (optint == 3){
-				strcpy(aux, "ult_descarte/");
-				strcat(aux, cartdes);
-				remove(aux);
-				FILE *fp;
-				fp = fopen("ult_descarte/c verde.txt", "a");
-				fclose(fp);
-			}
-			else if (optint == 4){
-				strcpy(aux, "ult_descarte/");
-				strcat(aux, cartdes);
-				remove(aux);
-				FILE *fp;
-				fp = fopen("ult_descarte/c rojo.txt", "a");
-				fclose(fp);
-			}
-			turno("jugador 1");
-		}
-		else{
-			turno("jugador 1");
-		}
-
+			closedir(dir);
+	}
 }
