@@ -9,3 +9,7 @@ void getCard(char *player);
 void startGame();
 
 void turno1();
+
+void restart();
+
+void callFork(char *folder, char *puesto, int rev);
