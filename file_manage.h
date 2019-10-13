@@ -1,6 +1,6 @@
 void createCards();
 
-void turno(char *folder);
+void turno(char *folder, int r, int c, int j);
 
 void moveCards(char *src, char *card, char *dest);
 
@@ -12,4 +12,4 @@ void turno1();
 
 void restart();
 
-void callFork(char *folder, char *puesto, int rev);
+void callFork(char *folder, char *puesto, int r, int c, int j);
