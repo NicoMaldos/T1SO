@@ -254,6 +254,7 @@ void turno(char *folder, int r, int c, int j){
 				for(i=0; i<2; i++){
 					getCard(folder);
 				}
+				seguir = 1;
 				validar = 0;
 				jugado = 1;
 				callFork(folder, "sig", rev, cantmazo, jugado);
@@ -263,6 +264,7 @@ void turno(char *folder, int r, int c, int j){
 				for(i=0; i<4; i++){
 					getCard(folder);
 				}
+				seguir = 1;
 				validar = 0;
 				jugado = 1;
 				callFork(folder, "sig", rev, cantmazo, jugado);
