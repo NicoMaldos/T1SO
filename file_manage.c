@@ -8,7 +8,7 @@
 #include<time.h>
 
 static int cantmazo = 108;
-static int rev = 1, fd1[2], fd2[2], fd3[3], fd4[2], jugado = 0;
+static int rev = 1, fd1[2], fd2[2], fd3[2], fd4[2], jugado = 0, seguir1 = 0;
 
 //funcion que crea todas las cartas y las guarda en la carpeta mazo.
 void createCards(){
@@ -204,28 +204,31 @@ void startGame(){
 }
 
 //Funcion que nos ejecuta todo un turno de un jugador(sin robar).
-void turno(char *folder, int r, int c, int j){
+void turno(char *folder, int r, int c, int j, int s){
 	DIR *dir; 
 	struct dirent *sd; 
 	char i;
 	char *cartmano = "", optstr[2] = "", optstr2[2] = "", *descarte = "";
 	char cartdes[50] = "ult_descarte/", mano[100][50], cartjug[50] = "";
-	int cont = 0, cont2 = 0, optint, optint2, seguir = 0, seguir1 = 0, validar = 1;
-	int input_str1[3], input_str2[3], input_str3[3], input_str4[3];
+	int cont = 0, cont2 = 0, optint, optint2, seguir = 0, validar = 1;
+	int input_int1[4], input_int2[4], input_int3[4], input_int4[4];
 
 
 	rev = r;
 	cantmazo = c;
 	jugado = j;
-	printf("vamos pal lado %d\n", rev);
-	printf("quedan %d en el mazo\n", cantmazo);
-	printf("jugado %d\n", jugado);
-
+	seguir1 = s;
 
 	while(seguir1 == 0){
 		while(seguir == 0){
 			printf("-------------------- Turno del %s --------------------\n", folder);
-			//printf("%d\n", getpid());
+			printf("¡ATENCIÓN! ¡Quedan %d en el mazo!\n", cantmazo);
+			if (rev == -1){
+				printf("¡Estamos en sentido contrario!\n");
+			}
+			else if (rev == 1){
+				printf("Estamos en sentido normal\n");
+			}	
 			printf("<<< La ultima carta descartada fue: ");
 			if ((dir = opendir("ult_descarte")) == NULL){
 				perror ("opendir() error.");
@@ -247,7 +250,6 @@ void turno(char *folder, int r, int c, int j){
 			}
 			closedir(dir);
 
-			//DE AQUI
 			descarte = strtok(descarte, " ");
 			if (strcmp(descarte, "+2") == 0 && jugado == 0){
 				printf("¡Debes sacar 2 cartas! ¡Pierdes el turno!\n");
@@ -257,7 +259,7 @@ void turno(char *folder, int r, int c, int j){
 				seguir = 1;
 				validar = 0;
 				jugado = 1;
-				callFork(folder, "sig", rev, cantmazo, jugado);
+				callFork(folder, "sig", rev, cantmazo, jugado, seguir1);
 			}
 			else if(strcmp(descarte, "+4") == 0 && jugado == 0){
 				printf("¡Debes sacar 4 cartas! ¡Pierdes el turno!\n");
@@ -267,9 +269,8 @@ void turno(char *folder, int r, int c, int j){
 				seguir = 1;
 				validar = 0;
 				jugado = 1;
-				callFork(folder, "sig", rev, cantmazo, jugado);
+				callFork(folder, "sig", rev, cantmazo, jugado, seguir1);
 			}
-			//HASTA AQUI
 
 			if (validar == 1){
 				printf("<<< Puedes tirar una de las cartas de tu mano o robar una carta del mazo: >>>\n");
@@ -350,38 +351,24 @@ void turno(char *folder, int r, int c, int j){
 							scanf("%s", optstr2);
 							optint2 = atoi(optstr2);
 						}
+
+						strcpy(aux, "ult_descarte/");
+						strcat(aux, cartdes);
+						remove(aux);
+						FILE *fp;
 						if (optint2 == 1){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/x azul.txt", "a");
-							fclose(fp);
 						}
 						else if (optint2 == 2){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/x amarillo.txt", "a");
-							fclose(fp);
 						}
 						else if (optint2 == 3){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/x verde.txt", "a");
-							fclose(fp);
 						}
 						else if (optint2 == 4){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/x rojo.txt", "a");
-							fclose(fp);
 						}
+						fclose(fp);
 						strcpy(aux, folder);
 						strcat(aux, "/");
 						strcat(aux, mano[optint-1]);
@@ -405,38 +392,24 @@ void turno(char *folder, int r, int c, int j){
 							scanf("%s", optstr2);
 							optint2 = atoi(optstr2);
 						}
+
+						strcpy(aux, "ult_descarte/");
+						strcat(aux, cartdes);
+						remove(aux);
+						FILE *fp;
 						if (optint2 == 1){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/+4 azul.txt", "a");
-							fclose(fp);
 						}
 						else if (optint2 == 2){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/+4 amarillo.txt", "a");
-							fclose(fp);
 						}
 						else if (optint2 == 3){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/+4 verde.txt", "a");
-							fclose(fp);
 						}
 						else if (optint2 == 4){
-							strcpy(aux, "ult_descarte/");
-							strcat(aux, cartdes);
-							remove(aux);
-							FILE *fp;
 							fp = fopen("ult_descarte/+4 rojo.txt", "a");
-							fclose(fp);
 						}
+						fclose(fp);
 						strcpy(aux, folder);
 						strcat(aux, "/");
 						strcat(aux, mano[optint-1]);
@@ -464,9 +437,11 @@ void turno(char *folder, int r, int c, int j){
 		if (validar == 1){
 			if(cont2 == 0){
 				printf("Ganaste, juego terminado\n");
+				seguir1 = 1;
 			}
 			else if(cantmazo == 0){
 				printf("No quedan cartas en el mazo, nadie gana.\n");
+				seguir1 = 1;
 			}
 			else{
 				if(cont2 == 1){
@@ -474,43 +449,69 @@ void turno(char *folder, int r, int c, int j){
 				}
 				
 				strtok(cartjug, " ");
-				//printf("%s\n", cartjug);
 
 				if(strcmp(cartjug, "salto") == 0){
 					jugado = 0;
-					callFork(folder, "subsig", rev, cantmazo, jugado);
+					callFork(folder, "subsig", rev, cantmazo, jugado, seguir1);
 				}
 				else if(strcmp(cartjug, "reversa") == 0){
 					rev = rev * -1;
 					jugado = 0;
-					callFork(folder, "sig", rev, cantmazo, jugado);
+					callFork(folder, "sig", rev, cantmazo, jugado, seguir1);
 				}
 				else if (strcmp(cartjug, "") == 0){
-					callFork(folder, "sig", rev, cantmazo, jugado);
+					callFork(folder, "sig", rev, cantmazo, jugado, seguir1);
 				}
 				else{
 					jugado = 0;
-					callFork(folder, "sig", rev, cantmazo, jugado);
+					callFork(folder, "sig", rev, cantmazo, jugado, seguir1);
 				}
 			}
 		}
-		validar = 1;
-		if(strcmp(folder, "jugador 1") == 0){
-			read(fd1[0], input_str1, 100);
-			turno("jugador 1", input_str1[0], input_str1[1], input_str1[2]);
+		if (seguir1 == 0){
+			validar = 1;
+			if(strcmp(folder, "jugador 1") == 0){
+				read(fd1[0], input_int1, 100);
+				turno("jugador 1", input_int1[0], input_int1[1], input_int1[2], input_int1[3]);
+			}
+			else if(strcmp(folder, "jugador 2") == 0){
+				read(fd2[0], input_int2, 100);
+				turno("jugador 2", input_int2[0], input_int2[1], input_int2[2], input_int2[3]);
+			}
+			else if(strcmp(folder, "jugador 3") == 0){
+				read(fd3[0], input_int3, 100);
+				turno("jugador 3", input_int3[0], input_int3[1], input_int3[2], input_int3[3]);
+			}
+			else if(strcmp(folder, "jugador 4") == 0){
+				read(fd4[0], input_int4, 100);
+				turno("jugador 4", input_int4[0], input_int4[1], input_int4[2], input_int4[3]);
+			}
 		}
-		else if(strcmp(folder, "jugador 2") == 0){
-			read(fd2[0], input_str2, 100);
-			turno("jugador 2", input_str2[0], input_str2[1], input_str2[2]);
+		else {
+			if(strcmp(folder, "jugador 1") == 0){
+				callFork("jugador 1", "sig", 1, 1, 1, 1);
+				callFork("jugador 1", "subsig", 1, 1, 1, 1);
+				callFork("jugador 3", "sig", 1, 1, 1, 1);
+			}
+			else if(strcmp(folder, "jugador 2") == 0){
+				callFork("jugador 2", "sig", 1, 1, 1, 1);
+				callFork("jugador 2", "subsig", 1, 1, 1, 1);
+				callFork("jugador 4", "sig", 1, 1, 1, 1);
+			}
+			else if(strcmp(folder, "jugador 3") == 0){
+				callFork("jugador 3", "sig", 1, 1, 1, 1);
+				callFork("jugador 3", "subsig", 1, 1, 1, 1);
+				callFork("jugador 1", "sig", 1, 1, 1, 1);
+			}
+			else if(strcmp(folder, "jugador 4") == 0){
+				callFork("jugador 4", "sig", 1, 1, 1, 1);
+				callFork("jugador 4", "subsig", 1, 1, 1, 1);
+				callFork("jugador 2", "sig", 1, 1, 1, 1);
+			}
 		}
-		else if(strcmp(folder, "jugador 3") == 0){
-			read(fd3[0], input_str3, 100);
-			turno("jugador 3", input_str3[0], input_str3[1], input_str3[2]);
-		}
-		else if(strcmp(folder, "jugador 4") == 0){
-			read(fd4[0], input_str4, 100);
-			turno("jugador 4", input_str4[0], input_str4[1], input_str4[2]);
-		}
+	}
+	if (strcmp(folder, "jugador 1") != 0){
+		exit(0);
 	}
 }
 
@@ -521,7 +522,7 @@ void turno1(){
 	char  *descarte = "", optstr[2] = "", cartdes[50] = "", aux[50] = "";
 	pid_t p1, p2, p3;
 	int i, optint = 0;
-	int input_str1[3], input_str2[3], input_str3[3], input_str4[3]; 
+	int input_int1[4], input_int2[4], input_int3[4], input_int4[4]; 
 
 	pipe(fd1);
     pipe(fd2);
@@ -538,16 +539,16 @@ void turno1(){
     }
 
 	if(p1 == 0){
-		read(fd2[0], input_str2, 100);
-		turno("jugador 2", input_str2[0], input_str2[1], input_str2[2]);
+		read(fd2[0], input_int2, 100);
+		turno("jugador 2", input_int2[0], input_int2[1], input_int2[2], input_int2[3]);
 	}
 	else if(p2 == 0){
-		read(fd3[0], input_str3, 100);
-		turno("jugador 3", input_str3[0], input_str3[1], input_str3[2]);
+		read(fd3[0], input_int3, 100);
+		turno("jugador 3", input_int3[0], input_int3[1], input_int3[2], input_int3[3]);
 	}
 	else if(p3 == 0){
-		read(fd4[0], input_str4, 100);
-		turno("jugador 4", input_str4[0], input_str4[1], input_str4[2]);
+		read(fd4[0], input_int4, 100);
+		turno("jugador 4", input_int4[0], input_int4[1], input_int4[2], input_int4[3]);
 	}
 
 	if ((dir = opendir("ult_descarte")) == NULL){
@@ -576,12 +577,14 @@ void turno1(){
 		for(i=0; i<2; i++){
 			getCard("jugador 1");
 		}
-		input_str2[0] = rev;
-		input_str2[1] = cantmazo;
-		input_str2[2] = jugado;
-		write(fd2[1], input_str2, 100);
-		read(fd1[0], input_str1, 100); 
-		turno("jugador 1", input_str1[0], input_str1[1], input_str1[2]);
+		jugado = 1;
+		input_int2[0] = rev;
+		input_int2[1] = cantmazo;
+		input_int2[2] = jugado;
+		input_int2[3] = seguir1;
+		write(fd2[1], input_int2, 100);
+		read(fd1[0], input_int1, 100); 
+		turno("jugador 1", input_int1[0], input_int1[1], input_int1[2], input_int1[3]);
 	}
 	else if(strcmp(descarte, "+4") == 0){
 		printf("-------------------- Turno del jugador 1 --------------------\n ¡Debes sacar 4 cartas! ¡Pierdes el turno!\n");
@@ -622,31 +625,34 @@ void turno1(){
 		}
 		fclose(fp);
 		jugado = 1;
-		input_str2[0] = rev;
-		input_str2[1] = cantmazo;
-		input_str2[2] = jugado;
-		write(fd2[1], input_str2, 100);
-		read(fd1[0], input_str1, 100); 
-		turno("jugador 1", input_str1[0], input_str1[1], input_str1[2]);
+		input_int2[0] = rev;
+		input_int2[1] = cantmazo;
+		input_int2[2] = jugado;
+		input_int2[3] = seguir1;
+		write(fd2[1], input_int2, 100);
+		read(fd1[0], input_int1, 100); 
+		turno("jugador 1", input_int1[0], input_int1[1], input_int1[2], input_int1[3]);
 	}
 	else if(strcmp(descarte, "salto") == 0){
 		printf("-------------------- Turno del jugador 1 --------------------\n Woh! Has sido... ¡SALTADO!\n");
-		input_str2[0] = rev;
-		input_str2[1] = cantmazo;
-		input_str2[2] = jugado;
-		write(fd2[1], input_str2, 100);
-		read(fd1[0], input_str1, 100); 
-		turno("jugador 1", input_str1[0], input_str1[1], input_str1[2]);
+		input_int2[0] = rev;
+		input_int2[1] = cantmazo;
+		input_int2[2] = jugado;
+		input_int2[3] = seguir1;
+		write(fd2[1], input_int2, 100);
+		read(fd1[0], input_int1, 100); 
+		turno("jugador 1", input_int1[0], input_int1[1], input_int1[2], input_int1[3]);
 	}
 	else if(strcmp(descarte, "reversa") == 0){
 		rev = rev * -1;
 		printf("-------------------- Turno del jugador 1 --------------------\n¡REVERSA!\n");
-		input_str4[0] = rev;
-		input_str4[1] = cantmazo;
-		input_str4[2] = jugado;
-		write(fd4[1], input_str4, 100);
-		read(fd1[0], input_str1, 100);
-		turno("jugador 1", input_str1[0], input_str1[1], input_str1[2]);
+		input_int4[0] = rev;
+		input_int4[1] = cantmazo;
+		input_int4[2] = jugado;
+		input_int4[3] = seguir1;
+		write(fd4[1], input_int4, 100);
+		read(fd1[0], input_int1, 100);
+		turno("jugador 1", input_int1[0], input_int1[1], input_int1[2], input_int1[3]);
 	}
 	else if(strcmp(descarte, "cambio") == 0){
 		printf("-------------------- Turno del jugador 1 --------------------\n");
@@ -683,136 +689,153 @@ void turno1(){
 			fp = fopen("ult_descarte/c rojo.txt", "a");
 		}
 		fclose(fp);
-		input_str2[0] = rev;
-		input_str2[1] = cantmazo;
-		input_str2[2] = jugado;
-		write(fd2[1], input_str2, 100);
-		read(fd1[0], input_str1, 100); 
-		turno("jugador 1", input_str1[0], input_str1[1], input_str1[2]);
+		input_int2[0] = rev;
+		input_int2[1] = cantmazo;
+		input_int2[2] = jugado;
+		input_int2[3] = seguir1;
+		write(fd2[1], input_int2, 100);
+		read(fd1[0], input_int1, 100); 
+		turno("jugador 1", input_int1[0], input_int1[1], input_int1[2], input_int1[3]);
 	}
 	else{
-		turno("jugador 1", rev, cantmazo, jugado);
+		turno("jugador 1", rev, cantmazo, jugado, seguir1);
 	}
 
 }
 
 //Esta funcion llama al pipe necesario.
-void callFork(char *folder, char *puesto, int r, int c, int j){
-	int input_str1[3], input_str2[3], input_str3[3], input_str4[3];
+void callFork(char *folder, char *puesto, int r, int c, int j, int s){
+	int input_int1[4], input_int2[4], input_int3[4], input_int4[4];
 
 	if(r == 1){
 		if(strcmp(folder, "jugador 1") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str2[0] = r;
-				input_str2[1] = c;
-				input_str2[2] = j;
-				write(fd2[1], input_str2, 100); 
+				input_int2[0] = r;
+				input_int2[1] = c;
+				input_int2[2] = j;
+				input_int2[3] = s;
+				write(fd2[1], input_int2, 100); 
 			}
 			else{
-				input_str3[0] = r;
-				input_str3[1] = c;
-				input_str3[2] = j;
-				write(fd3[1], input_str3, 100); 
+				input_int3[0] = r;
+				input_int3[1] = c;
+				input_int3[2] = j;
+				input_int3[3] = s;
+				write(fd3[1], input_int3, 100); 
 			}
 		}
 		else if(strcmp(folder, "jugador 2") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str3[0] = r;
-				input_str3[1] = c;
-				input_str3[2] = j;
-				write(fd3[1], input_str3, 100); 
+				input_int3[0] = r;
+				input_int3[1] = c;
+				input_int3[2] = j;
+				input_int3[3] = s;
+				write(fd3[1], input_int3, 100); 
 			}
 			else{
-				input_str4[0] = r;
-				input_str4[1] = c;
-				input_str4[2] = j;
-				write(fd4[1], input_str4, 100); 
+				input_int4[0] = r;
+				input_int4[1] = c;
+				input_int4[2] = j;
+				input_int4[3] = s;
+				write(fd4[1], input_int4, 100); 
 			}
 		}
 		else if(strcmp(folder, "jugador 3") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str4[0] = r;
-				input_str4[1] = c;
-				input_str4[2] = j;
-				write(fd4[1], input_str4, 100); 
+				input_int4[0] = r;
+				input_int4[1] = c;
+				input_int4[2] = j;
+				input_int4[3] = s;
+				write(fd4[1], input_int4, 100); 
 			}
 			else{
-				input_str1[0] = r;
-				input_str1[1] = c;
-				input_str1[2] = j;
-				write(fd1[1], input_str1, 100); 
+				input_int1[0] = r;
+				input_int1[1] = c;
+				input_int1[2] = j;
+				input_int1[3] = s;
+				write(fd1[1], input_int1, 100); 
 			}
 		}
 		else if (strcmp(folder, "jugador 4") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str1[0] = r;
-				input_str1[1] = c;
-				input_str1[2] = j;
-				write(fd1[1], input_str1, 100); 
+				input_int1[0] = r;
+				input_int1[1] = c;
+				input_int1[2] = j;
+				input_int1[3] = s;
+				write(fd1[1], input_int1, 100); 
 			}
 			else{
-				input_str2[0] = r;
-				input_str2[1] = c;
-				input_str2[2] = j;
-				write(fd2[1], input_str2, 100); 
+				input_int2[0] = r;
+				input_int2[1] = c;
+				input_int2[2] = j;
+				input_int2[3] = s;
+				write(fd2[1], input_int2, 100); 
 			}
 		}
 	}
 	else if(r == -1){
 		if(strcmp(folder, "jugador 1") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str4[0] = r;
-				input_str4[1] = c;
-				input_str4[2] = j;
-				write(fd4[1], input_str4, 100); 
+				input_int4[0] = r;
+				input_int4[1] = c;
+				input_int4[2] = j;
+				input_int4[3] = s;
+				write(fd4[1], input_int4, 100); 
 			}
 			else{
-				input_str3[0] = r;
-				input_str3[1] = c;
-				input_str3[2] = j;
-				write(fd3[1], input_str3, 100); 
+				input_int3[0] = r;
+				input_int3[1] = c;
+				input_int3[2] = j;
+				input_int3[3] = s;
+				write(fd3[1], input_int3, 100); 
 			}
 		}
 		else if(strcmp(folder, "jugador 2") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str1[0] = r;
-				input_str1[1] = c;
-				input_str1[2] = j;
-				write(fd1[1], input_str1, 100); 
+				input_int1[0] = r;
+				input_int1[1] = c;
+				input_int1[2] = j;
+				input_int1[3] = s;
+				write(fd1[1], input_int1, 100); 
 			}
 			else{
-				input_str4[0] = r;
-				input_str4[1] = c;
-				input_str4[2] = j;
-				write(fd4[1], input_str4, 100); 
+				input_int4[0] = r;
+				input_int4[1] = c;
+				input_int4[2] = j;
+				input_int4[3] = s;
+				write(fd4[1], input_int4, 100); 
 			}
 		}
 		else if(strcmp(folder, "jugador 3") == 0){
 			if(strcmp(puesto, "sig") == 0){
-				input_str2[0] = r;
-				input_str2[1] = c;
-				input_str2[2] = j;
-				write(fd2[1], input_str2, 100); 
+				input_int2[0] = r;
+				input_int2[1] = c;
+				input_int2[2] = j;
+				input_int2[3] = s;
+				write(fd2[1], input_int2, 100); 
 			}
 			else{
-				input_str1[0] = r;
-				input_str1[1] = c;
-				input_str1[2] = j;
-				write(fd1[1], input_str1, 100); 
+				input_int1[0] = r;
+				input_int1[1] = c;
+				input_int1[2] = j;
+				input_int1[3] = s;
+				write(fd1[1], input_int1, 100); 
 			}
 		}
 		else{
 			if(strcmp(puesto, "sig") == 0){
-				input_str3[0] = r;
-				input_str3[1] = c;
-				input_str3[2] = j;
-				write(fd3[1], input_str3, 100); 
+				input_int3[0] = r;
+				input_int3[1] = c;
+				input_int3[2] = j;
+				input_int3[3] = s;
+				write(fd3[1], input_int3, 100); 
 			}
 			else{
-				input_str2[0] = r;
-				input_str2[1] = c;
-				input_str2[2] = j;
-				write(fd2[1], input_str2, 100); 
+				input_int2[0] = r;
+				input_int2[1] = c;
+				input_int2[2] = j;
+				input_int2[3] = s;
+				write(fd2[1], input_int2, 100); 
 			}
 		}
 	}
